@@ -1,0 +1,16 @@
+#ifndef BLOCKCHAIN_ERROR_H
+#define BLOCKCHAIN_ERROR_H
+
+#define ERR_BACKUP_CORRUPTED 101
+#define ERR_NODE_EXISTS 102
+#define ERR_NODE_DOESNT_EXIST 103
+#define ERR_BLOCK_EXISTS 104
+#define ERR_BLOCK_DOESNT_EXIST 105
+#define ERR_COMMAND_NOT_FOUND 106
+#define ERR_NO_NODES 107
+#define ERR_NODE_NAME 108
+#define ERR_BLOCK_NAME 109
+
+void err_handler(int _input);
+
+#endif

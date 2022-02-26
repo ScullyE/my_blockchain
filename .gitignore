@@ -1,0 +1,4 @@
+*.o
+.vscode
+backups/
+my_blockchain
