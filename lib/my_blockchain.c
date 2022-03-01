@@ -11,67 +11,53 @@
 #include "nodes/my_nodes.h"
 #include "blocks/my_blocks.h"
 
-#define MAX_INPUT_SIZE 30
+#define MAX_INPUT_SIZE 1024
 #define MAX_INPUT_ARGS 4
+#define LEN_OF_INT_STRING 12
 
+void print_welcome_msg();
+void print_prompt(node* _node_head);
 node* load_backup(char* _path);
 node* cmd_loop(node* _node_head);
 bool save_backup(node* _node_head, char* _fpath, char* _dpath);
-void print_welcome_msg();
+bool input_handler(char* _input, node* _node_head);
+void flush_stdin();
 
 int my_blockchain(){
-
     char* backup_folder = "./backups";
     char* backup_path = "./backups/bloch_backup";
 
     print_welcome_msg();
 
     node* node_head = load_backup(backup_path);
+
     if(node_head != NULL){
         cmd_loop(node_head); 
     }
 
     save_backup(node_head, backup_path, backup_folder);
 
+    printf("Goodbye!\n");
     return 0;
 }
 
-node* load_backup(char* _path){
-    struct stat st;
-    node* node_head = malloc(sizeof(node));
+node* cmd_loop(node* _node_head){
+    bool exit = false;
 
-    node_head->nid = -1;
-    node_head->next = NULL;
-    node_head->chain = NULL;
+    while(!exit){
+        char input[MAX_INPUT_SIZE];
 
-    if (stat(_path, &st) == -1) {
-        //no backup
-        printf("No backup found, starting new blockchain\n");
+        print_prompt(_node_head);
+
+        fgets(input, MAX_INPUT_SIZE, stdin);
         
-    } else {
-        if(nodes_load(node_head, _path)){
-            printf("Backup loaded\n");
-        } else {
-            return NULL;
-        }
+        input[MAX_INPUT_SIZE-1] = '\n';
+        
+        exit = input_handler(input, _node_head);
+
     }
 
-    return node_head;
-}
-
-void print_prompt(node* _node_head){
-    int n = count_nodes(_node_head);
-    char ns[11];
-    printf_nr("[");
-    if(is_synced(_node_head)){
-        printf_nr("S");
-    } else {
-        printf_nr("-");
-    }
-    sprintf(ns, "%d", n);
-    printf_nr(ns);
-    printf_nr("]> ");
-    fflush(stdout);
+    return _node_head;
 }
 
 bool input_handler(char* _input, node* _node_head){
@@ -79,7 +65,7 @@ bool input_handler(char* _input, node* _node_head){
     bool quit = false;
     bool cmd_err = true;
 
-    for(int i = 0; i < MAX_INPUT_ARGS; i++){
+    for(int i = 0; i < MAX_INPUT_ARGS; i++){ //create array of inputs
         cmds[i] = malloc(sizeof(char) * MAX_INPUT_SIZE);
         if(!get_word(_input, cmds[i], i)){ 
             cmds[i][0] = '\0';
@@ -132,7 +118,6 @@ bool input_handler(char* _input, node* _node_head){
         cmd_err = false;
 
     } else if(!my_strcmp(cmds[0], "quit")){ /////quit commands
-        printf("Goodbye!\n");
         cmd_err = false;
         quit = true;
     }
@@ -148,38 +133,52 @@ bool input_handler(char* _input, node* _node_head){
     return quit;
 }
 
-node* cmd_loop(node* _node_head){
-    bool exit = false;
+node* load_backup(char* _path){
+    struct stat st;
+    node* node_head = malloc(sizeof(node));
+    node_head->nid = -1;
+    node_head->next = NULL;
+    node_head->chain = NULL;
 
-    //count nodes
-    //check sync
-
-    while(!exit){
-        char input[MAX_INPUT_SIZE];
-
-        print_prompt(_node_head);
-
-        fgets(input, MAX_INPUT_SIZE, stdin);
+    if (stat(_path, &st) == -1) {
+        printf("No backup found, starting new blockchain\n");
         
-        input[MAX_INPUT_SIZE-1] = '\n';
-        
-        exit = input_handler(input, _node_head);
+    } else {
+        if(nodes_load(node_head, _path)){
+            printf("Backup loaded\n");
+        } else {
+            return NULL;
+        }
     }
-
-    return _node_head;
+    return node_head;
 }
 
 bool save_backup(node* _node_head, char* _fpath, char* _dpath){
-    //make directory if it doesnt exist;
+    //make directory if it doesnt exist
     struct stat sb;
     if (stat(_dpath, &sb) == -1) {
-        mkdir(_dpath, 0700);
+        mkdir(_dpath, S_IRUSR);
     }
 
     nodes_unload(_node_head, _fpath);
-    
+    printf("Backup saved!\n");
     free_node_all(_node_head);
     return true;
+}
+
+void print_prompt(node* _node_head){
+    int n = count_nodes(_node_head);
+    char ns[LEN_OF_INT_STRING];
+    printf_nr("[");
+    if(is_synced(_node_head)){
+        printf_nr("S");
+    } else {
+        printf_nr("-");
+    }
+    sprintf(ns, "%d", n);
+    printf_nr(ns);
+    printf_nr("]> ");
+    fflush(stdout);
 }
 
 void print_welcome_msg(){

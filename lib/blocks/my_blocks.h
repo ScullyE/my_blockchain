@@ -1,6 +1,8 @@
 #ifndef BLOCKCHAIN_BLOCKS_H
 #define BLOCKCHAIN_BLOCKS_H
 
+#include <time.h>
+
 typedef struct block_s {
     char* bid;
     struct block_s* previous;

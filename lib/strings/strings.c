@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-bool get_word(char* _input, char* _output, int word){
+bool get_word(const char* _input, char* _output, int word){
     int walk = 0;
     int out_walk = 0;
     int count = 0;
@@ -45,15 +45,18 @@ int my_strcmp(char* str1, char* str2){
         str1++;
         str2++;
     }
+    if(*str1 != *str2){
+        return -1;
+    }
     return 0;
 }
 
-int my_atoi(char* _name){
+int my_atoi(const char* _name){
     int walk = 0;
     int out = 0;
     while(*(_name+walk) != '\0'){
-        if(*(_name+walk) > '0' && *(_name+walk) <= '9'){
-            out = (out*10)+(*(_name+walk) - 48);
+        if(*(_name+walk) >= '0' && *(_name+walk) <= '9'){
+            out = (out*10)+(*(_name+walk) - '0');
         }
         walk++;
     }
@@ -61,12 +64,12 @@ int my_atoi(char* _name){
     return out;
 }
 
-long long my_atoll(char* _name){
+long long my_atoll(const char* _name){
     long long walk = 0;
     long long out = 0;
     while(*(_name+walk) != '\0'){
         if(*(_name+walk) > '0' && *(_name+walk) <= '9'){
-            out = (out*10)+(*(_name+walk) - 48);
+            out = (out*10)+(*(_name+walk) - '0');
         }
         walk++;
     }
@@ -87,7 +90,7 @@ int my_strcpy(char* _to, const char* _from){
     return 0;
 }
 
-int my_strlen(char* _str){
+int my_strlen(const char* _str){
     int i = 0;
 
     if(_str == NULL){
@@ -103,9 +106,11 @@ int my_strlen(char* _str){
 
 bool is_alphanum(char* _str){
     while(*_str != '\0'){
-        if(*_str < 48 && *_str > 57){
-            if(*_str < 97 && *_str > 122){
-                return false;
+        if(*_str < '0' && *_str > '9'){
+            if(*_str < 'a' && *_str > 'z'){
+                if(*_str < 'A' && *_str > 'Z'){
+                    return false;
+                }
             }
         }
         _str++;
@@ -114,7 +119,7 @@ bool is_alphanum(char* _str){
     return true;
 }
 
-void printf_nr(const char* _str){    
+void printf_nr(const char* _str){
     int walk = 0;
     while(*(_str+walk) != '\0'){
         char c = *(_str+walk);

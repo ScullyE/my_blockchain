@@ -12,11 +12,11 @@ int count_blocks(block* _block_tail){
     int count = 1;
     if(_block_tail == NULL){
         return 0;
-    } else {
-        while(hold != NULL){
-            count++;
-            hold = hold->previous;
-        }
+    }
+
+    while(hold != NULL){
+        count++;
+        hold = hold->previous;
     }
     return count;
 }
@@ -26,6 +26,7 @@ bool block_check_name(char* _bid, block* _last_block){
 
     while(hold != NULL){
         if(!my_strcmp(hold->bid, _bid)){
+            printf("failed: %s vs %s, strcmp: %d\n", hold->bid, _bid, my_strcmp(hold->bid, _bid));
             return false;
         }
         hold = hold->previous;
@@ -38,7 +39,9 @@ block* create_block(char * _bid, block* _last_block){
     if(*_bid == '\0'){
         err_handler(ERR_BLOCK_NAME);
         return NULL;
-    }else if(!block_check_name(_bid, _last_block)){
+    } 
+    
+    if(!block_check_name(_bid, _last_block)){
         err_handler(ERR_BLOCK_EXISTS);
         return NULL;
     }
@@ -79,11 +82,10 @@ block* rm_block(char* _bid, block* _block_tail){
         last = hold->previous;
         free_block(hold);
         return last;
-    } else {
-        last->previous = hold->previous;
-        free_block(hold);
     }
 
+    last->previous = hold->previous;
+    free_block(hold);
     return _block_tail;
 }
 
